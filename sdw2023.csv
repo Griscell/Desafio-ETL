@@ -1,0 +1,43 @@
+sdw2023_api_url = 'https://sdw-2023-prd.up.railway.app'
+
+import pandas as pd # importando a biblioteca pandas para leitura de arquivos e planilhas
+df = pd.read_csv("SWD2023.csv") # Aqui criamos uma variavel e usamos ela para que o pandas leia a planilha
+user_id = df['UserID'].tolist( ) # Aqui criamos uma nova variavel nela inserimos a variavel anterior e pedimos para acessar a coluna que esta no arquivo.
+print(user_id)
+
+import requests
+import json
+
+def get_user(id):
+  response = requests.get(f'{sdw2023_api_url}/users/{id}') # aqui estamos criando uma variavel para requerir as informações do ID que estão no site e puxa as informações
+  return response.json() if response.status_code == 200 else None  # nesse aqui peço para que retorne o response, mas se o valor corresponder ao status 200 senão volte None
+
+users = [user for id in user_id if (user := get_user(id)) is not None] # Aqui estou itinerando uma lista e usando a função FOR na variavel user_id se o valor do response for
+print(json.dumps(users,indent=2))
+
+
+!pip install openai (Instalamos as bibliotecas da openai)
+
+import openai
+
+openai.api_key = openai_api_key
+
+def generate_ai_news(user):
+  completion = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[
+      {"role": "system",
+       "content": "You are a seeler of art."},
+
+       {"role": "user",
+       "content": f"Escreva a historia de uma pintura classica para {user['name']}(máximo 30 caracteres)"}
+  ]
+)
+  return completion.choices[0].message.content.strip('\"')
+for user in users:
+  news = generate_ai_news(user)
+  print(news)
+  user['news'].append({
+    "descriptions":news
+
+  })   (Nesse codigo teremos a implementação do chat GPT para criação de   mensagens personalizadas para os clientes) 
